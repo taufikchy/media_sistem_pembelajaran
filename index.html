@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulator Standarisasi Kabel UTP</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f4f4f4;
+        }
+
+        .cable {
+            margin: 3px;
+            padding: 0;
+            cursor: move;
+            width: 100%;
+            height: 60px;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            border: 2px solid #333;
+            border-radius: 5px;
+            background-clip: padding-box;
+            transition: transform 0.2s ease;
+        }
+
+        .cable:active {
+            transform: scale(1.05); /* Zoom saat di-drag */
+        }
+
+        .slot {
+            width: 60px;
+            height: 80px;
+            border: 1px dashed #333;
+            margin: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-shrink: 0;
+            transition: border-color 0.3s;
+        }
+
+        .correct {
+            border-color: green;
+        }
+
+        .incorrect {
+            border-color: red;
+        }
+
+        .cable-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .slots-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .slot {
+                width: 50px;
+                height: 60px;
+            }
+
+            .cable {
+                height: 50px;
+            }
+
+            .slots-container {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .slot {
+                width: 40px;
+                height: 50px;
+            }
+
+            .cable {
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center my-4">Simulator Standarisasi Kabel UTP</h1>
+
+        <!-- Tombol reset dan periksa -->
+        <div class="text-center mb-3">
+            <button id="resetButton" class="btn btn-warning">Reset</button>
+            <button id="checkButton" class="btn btn-success">Periksa Kabel</button>
+        </div>
+
+        <!-- Div untuk menampilkan hasil -->
+        <div id="result" class="text-center"></div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <h3>Kabel UTP</h3>
+                <div class="cable-container" id="cableContainer"></div>
+            </div>
+            <div class="col-md-8">
+                <div class="slots-container">
+                    <div class="slot" id="slot1"></div>
+                    <div class="slot" id="slot2"></div>
+                    <div class="slot" id="slot3"></div>
+                    <div class="slot" id="slot4"></div>
+                    <div class="slot" id="slot5"></div>
+                    <div class="slot" id="slot6"></div>
+                    <div class="slot" id="slot7"></div>
+                    <div class="slot" id="slot8"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Petunjuk penggunaan -->
+        <div class="instructions">
+            <h5>Cara Penggunaan:</h5>
+            <ol>
+                <li>Klik tombol "Reset" untuk memulai ulang simulator.</li>
+                <li>Pilih tipe standarisasi kabel (EIA 568A atau EIA 568B) yang ingin digunakan.</li>
+                <li>Seret kabel dari bagian "Kabel UTP" ke slot yang tersedia di sebelah kanan.</li>
+                <li>Setelah semua slot terisi, klik tombol "Periksa Kabel" untuk mengecek apakah urutan kabel sudah benar.</li>
+                <li>Jika urutan kabel salah, coba lagi hingga mendapatkan urutan yang benar!</li>
+            </ol>
+        </div>
+
+        <!-- Informasi kelompok -->
+        <div class="instructions">
+            <h5>KELOMPOK 3:</h5>
+            <ul>
+                <li>Azri Azhar - 2303010242</li>
+                <li>Taufik Cahya Ramadhan - 2203010141</li>
+                <li>Eko Iswadi - 2203010149</li>
+                <li>Aliy Fattah Afifi - 2203010121</li>
+                <li>Salsabila Ayunda Putri - 2303010218</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Modal Pemilihan Tipe Kabel -->
+    <div class="modal fade" id="selectTypeModal" tabindex="-1" role="dialog" aria-labelledby="selectTypeModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #007bff; color: white;">
+                    <h5 class="modal-title" id="selectTypeModalLabel">Pilih Tipe Standarisasi Kabel</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <button id="eia568AButton" class="btn btn-primary mx-2">Tipe EIA 568A</button>
+                    <button id="eia568BButton" class="btn btn-secondary mx-2">Tipe EIA 568B</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        const cableContainer = document.getElementById('cableContainer');
+        const resultDiv = document.getElementById('result');
+
+        let selectedCables = [];
+        let correctOrder = [];
+
+        // Definisikan warna kabel untuk tipe EIA 568A dan 568B
+        const cables568A = [
+            { id: 'cable1', color: 'repeating-linear-gradient(90deg, white 0%, white 50%, #3CB371 50%, #3CB371 100%)' },
+            { id: 'cable2', color: '#008000' },
+            { id: 'cable3', color: 'repeating-linear-gradient(90deg, white 0%, white 50%, #FFA500 50%, #FFA500 100%)' },
+            { id: 'cable4', color: '#0000FF' },
+            { id: 'cable5', color: 'repeating-linear-gradient(90deg, white 0%, white 50%, #4682B4 50%, #4682B4 100%)' },
+            { id: 'cable6', color: '#FFA500' },
+            { id: 'cable7', color: 'repeating-linear-gradient(90deg, white 0%, white 50%, #C3B091 50%, #C3B091 100%)' },
+            { id: 'cable8', color: '#8B4513' }
+        ];
+
+        const cables568B = [
+            { id: 'cable1', color: 'repeating-linear-gradient(90deg, white 0%, white 50%, #FFA500 50%, #FFA500 100%)' },
+            { id: 'cable2', color: '#FFA500' },
+            { id: 'cable3', color: 'repeating-linear-gradient(90deg, white 0%, white 50%, #3CB371 50%, #3CB371 100%)' },
+            { id: 'cable4', color: '#008000' },
+            { id: 'cable5', color: 'repeating-linear-gradient(90deg, white 0%, white 50%, #4682B4 50%, #4682B4 100%)' },
+            { id: 'cable6', color: '#0000FF' },
+            { id: 'cable7', color: 'repeating-linear-gradient(90deg, white 0%, white 50%, #C3B091 50%, #C3B091 100%)' },
+            { id: 'cable8', color: '#8B4513' }
+        ];
+
+        const slots = document.querySelectorAll('.slot');
+
+        // Tampilkan modal pilihan tipe kabel saat halaman pertama kali dimuat
+        $(document).ready(function() {
+            $('#selectTypeModal').modal('show');
+        });
+
+        // Pemilihan tipe kabel dan pengaturan urutan yang benar
+        document.getElementById('eia568AButton').addEventListener('click', () => {
+            correctOrder = [1, 2, 3, 4, 5, 6, 7, 8];
+            loadCables(shuffleArray(cables568A));
+            $('#selectTypeModal').modal('hide');
+        });
+
+        document.getElementById('eia568BButton').addEventListener('click', () => {
+            correctOrder = [1, 2, 3, 6, 5, 4, 7, 8];
+            loadCables(shuffleArray(cables568B));
+            $('#selectTypeModal').modal('hide');
+        });
+
+        // Tombol reset untuk mengatur ulang simulator
+        document.getElementById('resetButton').addEventListener('click', resetSimulator);
+
+        // Memuat kabel ke container
+        function loadCables(cables) {
+            selectedCables = cables;
+            cableContainer.innerHTML = '';
+            cables.forEach(cable => {
+                const cableDiv = document.createElement('div');
+                cableDiv.className = 'cable';
+                cableDiv.draggable = true;
+                cableDiv.id = cable.id;
+                cableDiv.style.background = cable.color;
+
+                cableDiv.addEventListener('dragstart', dragStart);
+                cableDiv.addEventListener('dragend', dragEnd);
+                cableContainer.appendChild(cableDiv);
+            });
+        }
+
+        // Fungsi untuk memulai drag kabel
+        function dragStart(e) {
+            e.dataTransfer.setData('text/plain', this.id);
+            setTimeout(() => this.style.visibility = 'hidden', 0); // Sembunyikan sementara saat di-drag
+        }
+
+        // Fungsi untuk mengakhiri drag kabel
+        function dragEnd() {
+            setTimeout(() => {
+                this.style.visibility = 'visible'; // Tampilkan kembali kabel setelah di-drop
+                this.style.opacity = '1';
+            }, 0);
+        }
+
+        // Setiap slot memiliki event listener untuk menerima kabel yang di-drop
+        slots.forEach(slot => {
+            slot.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+
+            slot.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const cableId = e.dataTransfer.getData('text/plain');
+                const cableElement = document.getElementById(cableId);
+
+                // Jika ada kabel di slot, kembalikan kabel yang ada ke kontainer
+                if (slot.children.length > 0) {
+                    const existingCable = slot.firstChild;
+                    cableContainer.appendChild(existingCable);
+                }
+
+                // Pastikan slot kosong sebelum menaruh kabel
+                if (!slot.children.length) {
+                    slot.appendChild(cableElement);
+                }
+            });
+        });
+
+        // Fungsi untuk memeriksa urutan kabel yang sudah di-drop ke slot
+        document.getElementById('checkButton').addEventListener('click', checkCables);
+
+        function checkCables() {
+            const userOrder = Array.from(slots).map((slot) => {
+                const cable = slot.firstChild;
+                return cable ? parseInt(cable.id.replace('cable', '')) : null;
+            }).filter(cableId => cableId !== null);
+
+            slots.forEach((slot) => {
+                slot.classList.remove('correct', 'incorrect');
+                slot.style.backgroundColor = ''; // Reset warna background
+            });
+
+            userOrder.forEach((cableId, index) => {
+                const slot = slots[index];
+                if (cableId === correctOrder[index]) {
+                    slot.classList.add('correct');
+                    slot.style.backgroundColor = 'green'; // Warna hijau untuk urutan benar
+                } else {
+                    slot.classList.add('incorrect');
+                    slot.style.backgroundColor = 'red'; // Warna merah untuk urutan salah
+                }
+            });
+
+            if (JSON.stringify(userOrder) === JSON.stringify(correctOrder)) {
+                resultDiv.innerText = 'Urutan Benar!';
+                resultDiv.style.color = 'green';
+            } else {
+                resultDiv.innerText = 'Urutan kabel salah. Silakan coba lagi.';
+                resultDiv.style.color = 'red';
+            }
+        }
+
+        // Fungsi untuk reset simulator
+        function resetSimulator() {
+            slots.forEach(slot => {
+                slot.innerHTML = '';
+                slot.classList.remove('correct', 'incorrect');
+                slot.style.backgroundColor = ''; // Reset warna slot
+            });
+            resultDiv.innerText = '';
+            loadCables(shuffleArray(selectedCables));
+            $('#selectTypeModal').modal('show');
+        }
+
+        // Fungsi untuk mengacak urutan kabel
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+    </script>
+</body>
+</html>
